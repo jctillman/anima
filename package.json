@@ -1,0 +1,15 @@
+{
+  "name": "anima",
+  "version": "1.0.0",
+  "description": "A complete neural network package.",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha tests/specs.js"
+  },
+  "author": "James Tillman <James.Tillman.7@gmail.com> (https://github.com/jctillman)",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^3.2.0",
+    "lodash": "^3.10.0"
+  }
+}
