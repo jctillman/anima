@@ -31,15 +31,11 @@ module.exports = function(randomnessFunc, cost){
 			'generic_propogate' : function(val){
 				var self = this;
 				if (!isNaN(val)){
-					//console.log("?", self.a, cost.derivative(val, self.a));
 					self.dCwrtA = cost.derivative(val, self.a);
-					//console.log("ASD", val, self.a, self.dCwrtA)
-					//consol
 					return self.dCwrtA;
 				}else{
 
 					self.dCwrtA = self.influences.reduce(function(sum, influencedNeuron, index){
-						//console.log("sd", sum, influencedNeuron.dCwrtA, influencedNeuron.dAwrt(self))
 						return sum + influencedNeuron.dCwrtA * influencedNeuron.dAwrt(self);
 					},0);
 					return self.dCwrtA;
@@ -68,10 +64,6 @@ module.exports = function(randomnessFunc, cost){
 						self.z = self.connections.reduce(function(sum, neuron, index){
 							return sum + neuron.a * self.weights[index]
 						}, self.bias);
-						//if(isNaN(self.z)){
-						//	console.log(self)
-						//	throw new Error(self);
-						//}
 						self.a = link_function(self.z);
 						return self.a;
 					}
