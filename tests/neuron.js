@@ -4,7 +4,6 @@ var expect = require('chai').expect;
 describe('Testing neuron, which is the neuron-creating function', function(){
 
 	var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
-	var allEtaValues = [0.2,0.2,0.2,0.2,2];
 
 	it('tests simple connection / diconnection items for all kinds', function(){
 
@@ -145,9 +144,14 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 
 	it('Can handle the task of converting from one-spot to binary', function(){
 
-		this.timeout(2000);
+		this.timeout(20000);
+
+		var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
+		var allEtaValues = [0.2,0.2,0.2,0.2,2];
 
 		for(var x = 0 ; x < allNeuronKinds.length; x++){
+
+			//console.log(allNeuronKinds[x])
 
 			neurons = [[],[],[]];
 			for(var a = 0; a < 8; a++){
@@ -177,7 +181,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 			}
 
 			//Train em all, say, 500 times
-			for(var a = 0; a < 1000; a++){
+			for(var a = 0; a < 1500; a++){
 
 				//Get input / output.
 				num = Math.round(Math.random()*7);
@@ -186,8 +190,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 				oneHot.reverse();
 				binary = num.toString(2).split('').map(function(n){return parseInt(n)});
 				while(binary.length < 3){binary = [0].concat(binary)}
-				//console.log("Train", oneHot, binary)
-				
+			
 
 				for(var b = 0; b < neurons[0].length; b++){
 					neurons[0][b].activation(oneHot[b]);
@@ -208,6 +211,117 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 					}
 				}
 
+			}
+
+			//Check
+			for(var a = 0; a < 8; a++){
+
+				num = a
+				oneHot = [0,0,0,0,0,0,0,0];
+				oneHot[num] = 1;
+				oneHot.reverse();
+				binary = num.toString(2).split('').map(function(n){return parseInt(n)});
+				while(binary.length < 3){binary = [0].concat(binary)}
+
+				for(var b = 0; b < 8; b++){
+					neurons[0][b].activation(oneHot[b]);
+				}
+				for(var b = 1; b < 3; b++){
+					for(var c = 0; c < neurons[b].length; c++){
+						neurons[b][c].activation();
+					}
+				}
+				result = neurons[2].map(function(n){return n.a});
+
+				for(var c = 0; c < 3; c++){
+					expect(Math.abs(binary[c]-result[c]) < 0.1).to.equal(true)
+				}
+				
+
+			}
+		}
+	});
+
+	var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
+	
+
+	it('Can handle the task of converting from one-spot to binary, using SGD', function(){
+
+		this.timeout(20000);
+
+		var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
+		var allEtaValues = [0.2,0.3,0.3,0.5,10];
+
+		for(var x = 0 ; x < 5; x++){
+
+			//console.log(allNeuronKinds[x])
+
+			neurons = [[],[],[]];
+			for(var a = 0; a < 8; a++){
+				neurons[0].push(neuron({typeOfNeuron: 'input'}));
+			}
+			for(var a = 0; a < 16; a++){
+				neurons[1].push(neuron({typeOfNeuron: allNeuronKinds[x], randomness: 'flatProportionateZero', cost: 'squaredError' }));
+			}
+			for(var a = 0; a < 3; a++){
+				neurons[2].push(neuron({typeOfNeuron: allNeuronKinds[x], randomness: 'flatProportionateZero', cost: 'squaredError' }));
+			}
+
+			//Connect each neuron to all the prior neurons
+			for(var a = 1; a < neurons.length; a++){
+				for(var b = 0; b < neurons[a-1].length; b++){
+					for(var c = 0; c < neurons[a].length; c++){
+						neurons[a][c].connect(neurons[a-1][b]);
+					}
+				}
+			}
+
+			//Initialize the neurons
+			for(var a = 0; a < neurons.length; a++){
+				for(var b = 0; b < neurons[a].length; b++){
+					neurons[a][b].init();
+				}
+			}
+
+			//Train em all, say, 500 times
+			for(var a = 0; a < 2000; a++){
+
+				//Get input / output.
+				num = Math.round(Math.random()*7);
+				oneHot = [0,0,0,0,0,0,0,0];
+				oneHot[num] = 1;
+				oneHot.reverse();
+				binary = num.toString(2).split('').map(function(n){return parseInt(n)});
+				while(binary.length < 3){binary = [0].concat(binary)}			
+
+				for(var b = 0; b < neurons[0].length; b++){
+					neurons[0][b].activation(oneHot[b]);
+				}	
+				for(var b = 0; b < neurons[1].length; b++){
+					neurons[1][b].activation();
+				}
+				for(var b = 0; b < 3; b++){
+					neurons[2][b].activation();
+					neurons[2][b].propogate(binary[b]);
+				}
+				for(var b= 0; b < neurons[1].length; b++){
+					neurons[1][b].propogate();
+				}
+				for(var c = 2; c > 0; c--){
+					for (var b = 0; b < neurons[c].length; b++){
+						neurons[c][b].getDeltas();
+					}
+				}
+
+				if (a % 10 == 0){
+					for(var c = 2; c > 0; c--){
+						for (var b = 0; b < neurons[c].length; b++){
+							//console.log(neurons[c][b].weightsDelta)
+							neurons[c][b].applyDeltas(allEtaValues[x]);
+
+						}
+					}	
+				}
 			}
 
 			//Check
