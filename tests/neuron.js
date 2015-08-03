@@ -3,10 +3,11 @@ var expect = require('chai').expect;
 
 describe('Testing neuron, which is the neuron-creating function', function(){
 
-	var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
+	
 
 	it('tests simple connection / diconnection items for all kinds', function(){
 
+		var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
 		for(var x = 0 ; x < allNeuronKinds.length; x++){
 			var m = neuron({typeOfNeuron: allNeuronKinds[x] });
 			var n = neuron({typeOfNeuron: allNeuronKinds[x] });
@@ -40,6 +41,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 
 	it('Tests that each neuron gives a positive value after being given a positive value', function(){
 
+		var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
 		for(var x = 0 ; x < allNeuronKinds.length; x++){
 			var m = neuron({typeOfNeuron: allNeuronKinds[x], randomness: 'one' });
 			var n = neuron({typeOfNeuron: allNeuronKinds[x], randomness: 'one' });
@@ -62,6 +64,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 	//Added this after getting ready to scream.
 	it('Calculates the derivative relative to some input correctly.', function(){
 
+		var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
 		for(var x = 0; x < allNeuronKinds.length; x++){
 			var m = neuron({typeOfNeuron: 'input'});
 			var n = neuron({typeOfNeuron: 'input'});
@@ -100,6 +103,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 
 	it('Adjusts itself after being in error, so that the error is less.', function(){
 
+		var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
 		for(var x = 0 ; x < allNeuronKinds.length; x++){
 			//console.log(allNeuronKinds[x]);
 			var m = neuron({typeOfNeuron: 'input'});
@@ -157,7 +161,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 			for(var a = 0; a < 8; a++){
 				neurons[0].push(neuron({typeOfNeuron: 'input'}));
 			}
-			for(var a = 0; a < 16; a++){
+			for(var a = 0; a < 8; a++){
 				neurons[1].push(neuron({typeOfNeuron: allNeuronKinds[x], randomness: 'flatProportionateZero', cost: 'squaredError' }));
 			}
 			for(var a = 0; a < 3; a++){
@@ -242,8 +246,6 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 		}
 	});
 
-	var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
-	
 
 	it('Can handle the task of converting from one-spot to binary, using SGD', function(){
 
@@ -260,7 +262,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 			for(var a = 0; a < 8; a++){
 				neurons[0].push(neuron({typeOfNeuron: 'input'}));
 			}
-			for(var a = 0; a < 16; a++){
+			for(var a = 0; a < 8; a++){
 				neurons[1].push(neuron({typeOfNeuron: allNeuronKinds[x], randomness: 'flatProportionateZero', cost: 'squaredError' }));
 			}
 			for(var a = 0; a < 3; a++){

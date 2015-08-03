@@ -1,26 +1,13 @@
 
 var makeGenericTemplates = require('./makeGenericTemplates')
 
+var shared = {};
+
 module.exports = function(neuronKind, randomnessFunc, cost){
 
-	generic = makeGenericTemplates(randomnessFunc, cost)
+	var generic = makeGenericTemplates(randomnessFunc, cost)
 
-	var baseTemplate = {
-		connections: [],
-		influences: [],
-		'connect': generic.connect,
-		'disconnect': generic.disconnect,
-		'init': generic.init,
-		'propogate': generic.propogate,
-		'adjust': generic.adjust,
-		'applyDeltas': generic.applyDeltas,
-		'activation': function(){throw new Error("This function needs to be replaced.")},
-		'dAwrt': function(){throw new Error("This function needs to be replaced.")},
-		
-		
-	};
-
-	templateExtensions = {
+	var templateExtensions = {
 
 		'input': {
 			'activation': generic.activation(function(z){
@@ -111,8 +98,38 @@ module.exports = function(neuronKind, randomnessFunc, cost){
 
 	}
 
-	for (var m in templateExtensions[neuronKind]) { baseTemplate[m] = templateExtensions[neuronKind][m]; }
-	return baseTemplate
+	if (neuronKind.indexOf("_") == -1){
+
+		var baseTemplate = {
+			connections: [],
+			influences: [],
+			'connect': generic.connect,
+			'disconnect': generic.disconnect,
+			'init': generic.init,
+			'propogate': generic.propogate,
+			'adjust': generic.adjust,
+			'applyDeltas': generic.applyDeltas,
+			'activation': function(){throw new Error("This function needs to be replaced.")},
+			'dAwrt': function(){throw new Error("This function needs to be replaced.")},		
+		};
+
+
+		for (var m in templateExtensions[neuronKind]){
+			baseTemplate[m] = templateExtensions[neuronKind][m];
+		}
+		return baseTemplate
+	}else{
+		var subKind = neuronKind.split('_')[0];
+		var number = parseInt(neuronKind.split('_')[1]);
+		if (Object.keys(shared).indexOf(neuronKind) == -1) {
+			for (var m in templateExtensions[subKind]){
+				baseTemplate[m] = templateExtensions[neuronKind][m];
+			}	
+		}else{
+
+		}
+
+	}
 
 }
 
