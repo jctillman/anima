@@ -257,7 +257,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 			var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
 			var allEtaValues = [0.2,0.3,0.3,0.5,10];
 
-			for(var x = 0 ; x < 5; x++){
+			for(var x = 0 ; x < allNeuronKinds.length; x++){
 
 				//console.log(allNeuronKinds[x])
 
@@ -357,6 +357,127 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 				}
 			}
 		});
+
+	});
+
+	describe('Tests which pertain to neurons with shared values', function(){
+
+			it('Updates the memory in neurons not touched, if they share weights', function(){
+
+			this.timeout(20000);
+
+			var allNeuronKinds = ['leakyrelu','relu','tanh', 'sigmoid'];
+			var allEtaValues = [0.1,0.1,0.1,3];
+			var numHidden = 13;
+
+			for(var x = 0 ; x < allNeuronKinds.length; x++){
+
+				//console.log(allNeuronKinds[x])
+
+				//Make neurons for the original network.
+				var baseInp1 = neuron({typeOfNeuron: 'input'});
+				var baseInp2 = neuron({typeOfNeuron: 'input'});
+				var baseXorNeurons = [];
+				for(var a = 0; a < numHidden; a++){
+					baseXorNeurons.push(neuron({typeOfNeuron: allNeuronKinds[x] + '_' + a, randomness: 'flatProportionateZero', cost: 'squaredError' }));
+				}
+				for(var a = 0; a < numHidden; a++){
+					baseXorNeurons[a].connect(baseInp1);
+					baseXorNeurons[a].connect(baseInp2);
+				}
+
+				baseOutput = neuron({typeOfNeuron: allNeuronKinds[x] + '_final'});
+				for(var a = 0; a < baseXorNeurons.length; a++){
+					baseOutput.connect(baseXorNeurons[a]);
+				}
+
+
+				//Make neurons for the copy of network.  This one will not be trained, because
+				//the weights it gets should be copied from elsewhere, ya know?
+				var otherInp1 = neuron({typeOfNeuron: 'input'});
+				var otherInp2 = neuron({typeOfNeuron: 'input'});
+				var otherXorNeurons = [];
+				for(var a = 0; a < numHidden; a++){
+					otherXorNeurons.push(neuron({typeOfNeuron: allNeuronKinds[x] + '_' + a, randomness: 'flatProportionateZero', cost: 'squaredError' }));
+				}
+				for(var a = 0; a < numHidden; a++){
+					otherXorNeurons[a].connect(otherInp1);
+					otherXorNeurons[a].connect(otherInp2);
+				}
+				otherOutput = neuron({typeOfNeuron: allNeuronKinds[x] + '_final'});
+				for(var a = 0; a < otherXorNeurons.length; a++){
+					otherOutput.connect(otherXorNeurons[a]);
+				}
+
+				//Initialize everything straight up.
+				baseInp1.init();
+				baseInp2.init();
+				for(var a = 0; a < baseXorNeurons.length; a++){
+					baseXorNeurons[a].init()
+				}
+				baseOutput.init();
+
+				otherInp1.init();
+				otherInp2.init();
+				for(var a = 0; a < otherXorNeurons.length; a++){
+					otherXorNeurons[a].init()
+				}
+				otherOutput.init();
+
+
+				//Train one of the series, say, 100 times
+				for(var a = 0; a < 2000; a++){
+					var one = Math.round(Math.random());
+					var two = Math.round(Math.random());
+					//console.log(one,two);
+					baseInp1.activation(one);
+					baseInp2.activation(two);
+					for(var b = 0; b < baseXorNeurons.length; b++){
+						baseXorNeurons[b].activation();
+					}
+					baseOutput.activation();
+					//console.log(baseOutput.activation());
+					if ( ((two == 1) && (one == 0)) || ((two == 0) && (one == 1)) ){
+						//console.log("!");
+						baseOutput.propogate(1);
+					}else{
+						baseOutput.propogate(0);
+						//console.log("Fail");
+					}
+					
+					for(var b = 0; b < baseXorNeurons.length; b++){
+						baseXorNeurons[b].propogate();
+					}
+					baseOutput.adjust(allEtaValues[x]);
+					for(var b = 0; b < baseXorNeurons.length; b++){
+						baseXorNeurons[b].adjust(allEtaValues[x]);
+					}
+				}
+
+				for(var a = 0; a < 100; a++){
+					var one = Math.round(Math.random());
+					var two = Math.round(Math.random());
+					otherInp1.activation(one);
+					otherInp2.activation(two);
+					for(var b = 0; b < baseXorNeurons.length; b++){
+						otherXorNeurons[b].activation();
+					}
+					var fin = otherOutput.activation()
+					var dif
+					if ( ((two == 1) && (one == 0)) || ((two == 0) && (one == 1)) ){
+						dif = fin - 1;
+					}else{
+						dif = fin;
+					}
+
+					expect(dif < 0.1).to.equal(true);
+				}
+
+
+			} 
+
+		});
+
 
 	});
 

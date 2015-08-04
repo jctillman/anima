@@ -9,8 +9,9 @@ module.exports = function(neuronKind, randomnessFunc, cost){
 	var tempLink;
 
 	if (neuronKind.indexOf('_') != -1){
-		shared[neuronKind] == shared[neuronKind] || {};
+		shared[neuronKind] = shared.hasOwnProperty(neuronKind) ? shared[neuronKind] : {};
 		tempLink = shared[neuronKind];
+		neuronKind = neuronKind.split('_')[0];
 	}else{
 		tempLink = {}
 	}
@@ -24,8 +25,8 @@ module.exports = function(neuronKind, randomnessFunc, cost){
 		'propogate': generic.propogate,
 		'adjust': generic.adjust,
 		'applyDeltas': generic.applyDeltas,
-		'activation': function(){throw new Error("This function needs to be replaced.")},
-		'dAwrt': function(){throw new Error("This function needs to be replaced.")},
+		'activation': function(){throw new Error("This activation function needs to be replaced.")},
+		'dAwrt': function(){throw new Error("This dAwrt function needs to be replaced.")},
 		
 		
 	};

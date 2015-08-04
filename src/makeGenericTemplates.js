@@ -19,11 +19,13 @@ module.exports = function(randomnessFunc, cost){
 
 			'init' : function(sharedValue){
 
+				var sharedValue = sharedValue;
+
 				return function(){
 					var self = this;
 					
 					//Initializing parameters for the neurons.
-					if(sharedValue.weights == undefined){
+					if(!sharedValue.hasOwnProperty('weights')){
 						sharedValue.bias = randomnessFunc(self.connections.length);
 						sharedValue.weights = [];
 						self.connections.forEach(function(){
