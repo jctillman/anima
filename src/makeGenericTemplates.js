@@ -17,25 +17,31 @@ module.exports = function(randomnessFunc, cost){
 				return false;
 			},
 
-			'init' : function(){
-				var self = this;
-				
-				//Initializing whatever is used in generic neurons.
-				self.bias = randomnessFunc(self.connections.length);
-				self.weights = [];
-				self.connections.forEach(function(){
-					self.weights.push(randomnessFunc(self.connections.length));
-				});
-				
-				//This is used in stochastic gradient descent.
-				self.numDeltas = 0;
-				self.biasDelta = 0;
-				self.weightsDelta = self.weights.map(function(){return 0;});
+			'init' : function(sharedValue){
 
-				//Initialization of activation value--start not following.
-				self.a = 0;
+				return function(){
+					var self = this;
+					
+					//Initializing parameters for the neurons.
+					if(sharedValue.weights == undefined){
+						sharedValue.bias = randomnessFunc(self.connections.length);
+						sharedValue.weights = [];
+						self.connections.forEach(function(){
+							sharedValue.weights.push(randomnessFunc(self.connections.length));
+						});
+					}
+					self.sv = sharedValue;
+					
+					//This is used in stochastic gradient descent.
+					self.numDeltas = 0;
+					self.biasDelta = 0;
+					self.weightsDelta = self.sv.weights.map(function(){return 0;});
 
-				return true;
+					//Initialization of activation value--start not following.
+					self.a = 0;
+
+					return true;
+				}
 			},
 
 			'propogate' : function(val){
@@ -62,7 +68,6 @@ module.exports = function(randomnessFunc, cost){
 				return function(){
 					var self = this;
 					var dAwrtZ = calculateDawrtZ(self);
-					
 					self.biasDelta = self.biasDelta + ( self.dCwrtA * dAwrtZ);
 					self.weightsDelta = self.weightsDelta.map(function(weightDelta, weightIndex){
 						return weightDelta + (self.connections[weightIndex].a * self.dCwrtA * dAwrtZ);
@@ -78,8 +83,8 @@ module.exports = function(randomnessFunc, cost){
 				var lambda = eta / self.numDeltas;
 				
 				//Apply deltas accumulated previously, while dividing by the num.
-				self.bias = self.bias - (self.biasDelta * lambda);
-				self.weights = self.weights.map(function(weight, weightIndex){
+				self.sv.bias = self.sv.bias - (self.biasDelta * lambda);
+				self.sv.weights = self.sv.weights.map(function(weight, weightIndex){
 					return weight - (self.weightsDelta[weightIndex] * lambda)
 				});
 
@@ -98,8 +103,8 @@ module.exports = function(randomnessFunc, cost){
 					}
 					else{
 						self.z = self.connections.reduce(function(sum, neuron, index){
-							return sum + neuron.a * self.weights[index]
-						}, self.bias);
+							return sum + neuron.a * self.sv.weights[index]
+						}, self.sv.bias);
 						self.a = link_function(self.z);
 						return self.a;
 					}
@@ -113,7 +118,7 @@ module.exports = function(randomnessFunc, cost){
 					if (index == -1){
 						return 0
 					}else{
-						return deriv_function(self, self.weights[index], neuron);
+						return deriv_function(self, self.sv.weights[index], neuron);
 					}
 				}
 			}

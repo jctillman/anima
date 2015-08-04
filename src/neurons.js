@@ -1,16 +1,26 @@
 
 var makeGenericTemplates = require('./makeGenericTemplates')
 
+var shared = {};
+
 module.exports = function(neuronKind, randomnessFunc, cost){
 
 	generic = makeGenericTemplates(randomnessFunc, cost)
+	var tempLink;
+
+	if (neuronKind.indexOf('_') != -1){
+		shared[neuronKind] == shared[neuronKind] || {};
+		tempLink = shared[neuronKind];
+	}else{
+		tempLink = {}
+	}
 
 	var baseTemplate = {
 		connections: [],
 		influences: [],
 		'connect': generic.connect,
 		'disconnect': generic.disconnect,
-		'init': generic.init,
+		'init': generic.init(tempLink),
 		'propogate': generic.propogate,
 		'adjust': generic.adjust,
 		'applyDeltas': generic.applyDeltas,
