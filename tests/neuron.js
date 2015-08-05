@@ -481,4 +481,27 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 
 	});
 
+	describe('Tests for the LSTM neuron', function(){
+
+		it('Can be initalized, and fed forward', function(){
+
+			var size = 3
+
+			var a = neuron({typeOfNeuron: 'input'});
+			var b = [];
+			for(var x = 0; x < size; x++){
+				b.push(neuron({typeOfNeuron: 'lstm'}));
+			}
+			var c = neuron({typeOfNeuron: 'lstm'});
+
+			a.init();
+			for(var x = 0; x < size; x++){
+				b[x].init();
+			}
+			c.init();
+
+		});
+
+	});
+
 });

@@ -129,6 +129,51 @@ module.exports = {
 					return dAwrtZ;
 				 })
 			})
+		},
+
+		'lstm': function(randomnessFunc, cost, tempLink){
+			return {
+				connections: [],
+				influences: [],
+				'connect': generic.connect_f,
+				'disconnect': generic.disconnect_f,
+				'init': function(){
+
+				},
+				'activation': function(){
+
+				},
+				'propogate': function(){
+
+				},
+				'adjust': generic.adjust_f,
+				'applyDeltas': function(eta){
+
+				},
+
+				'getDeltas': function(){
+
+				},
+
+				'propogate': function(){
+
+				},
+
+				'dAwrt': function(neuron){
+
+				}
+			}
+
 		}
 
 	};
+
+
+
+
+
+
+
+
+
+
