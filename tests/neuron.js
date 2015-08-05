@@ -255,7 +255,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 			this.timeout(20000);
 
 			var allNeuronKinds = ['linear','leakyrelu','relu','tanh', 'sigmoid'];
-			var allEtaValues = [0.2,0.3,0.3,0.5,10];
+			var allEtaValues = [0.2,0.3,0.3,0.5,20];
 
 			for(var x = 0 ; x < allNeuronKinds.length; x++){
 
