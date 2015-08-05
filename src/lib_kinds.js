@@ -1,17 +1,29 @@
 var generic = require('./lib_generic');
 
+var mix = function(obj){
+	var base = {
+		connections: [],
+		influences: [],
+		'connect': generic.connect_f,
+		'disconnect': generic.disconnect_f,
+		'adjust': generic.adjust_f,
+		'applyDeltas': generic.applyDeltas_f
+	};
+	var keys = Object.keys(obj);
+	for(var x = 0; x < keys.length; x++){
+		base[keys[x]] = obj[keys[x]]
+	}
+	return base;
+}
+
+
+
 module.exports = {
 
 		'input': function(randomnessFunc, cost, tempLink){
-			return {
-				connections: [],
-				influences: [],
-				'connect': generic.connect_f,
-				'disconnect': generic.disconnect_f,
+			return mix({
 				'init': generic.init_fm(tempLink, randomnessFunc),
 				'propogate': generic.propogate_fm(cost),
-				'adjust': generic.adjust_f,
-				'applyDeltas': generic.applyDeltas_f,
 				'activation': generic.activation_fm(function(z){
 					throw new Error("Input neurons should always receive input, never calculate it.");
 				}),
@@ -24,20 +36,13 @@ module.exports = {
 				'adjust': function(){
 					throw new Error("There's no point in adjusting an input neuron!");
 				}
-			}
+			})
 		},
 
 		'relu' : function(randomnessFunc, cost, tempLink){
-			return {
-				connections: [],
-				influences: [],
-				'connect': generic.connect_f,
-				'disconnect': generic.disconnect_f,
+			return mix({
 				'init': generic.init_fm(tempLink, randomnessFunc),
 				'propogate': generic.propogate_fm(cost),
-				'adjust': generic.adjust_f,
-				'applyDeltas': generic.applyDeltas_f,
-
 				'activation': generic.activation_fm(function(z){
 					return (z < 0) ? z / 20 : z;
 				 }),
@@ -47,19 +52,13 @@ module.exports = {
 				'getDeltas': generic.getDeltas_fm(function(self){
 					return (self.z < 0) ? 0.05 : 1;
 				})
-			}
+			})
 		},
 
 		'leakyrelu' : function(randomnessFunc, cost, tempLink){
-			return {
-				connections: [],
-				influences: [],
-				'connect': generic.connect_f,
-				'disconnect': generic.disconnect_f,
+			return mix({
 				'init': generic.init_fm(tempLink, randomnessFunc),
 				'propogate': generic.propogate_fm(cost),
-				'adjust': generic.adjust_f,
-				'applyDeltas': generic.applyDeltas_f,
 				'activation': generic.activation_fm(function(z){
 					return (z < 0) ? z / 5 : z;
 				 }),
@@ -69,19 +68,13 @@ module.exports = {
 				'getDeltas': generic.getDeltas_fm(function(self){
 					return (self.z < 0) ? 0.2 : 1;
 				})
-			}
+			})
 		},
 
 		'linear' : function(randomnessFunc, cost, tempLink){
-			return {
-				connections: [],
-				influences: [],
-				'connect': generic.connect_f,
-				'disconnect': generic.disconnect_f,
+			return mix({
 				'init': generic.init_fm(tempLink, randomnessFunc),
 				'propogate': generic.propogate_fm(cost),
-				'adjust': generic.adjust_f,
-				'applyDeltas': generic.applyDeltas_f,
 			 	'activation': generic.activation_fm(function(z){
 			 		return z
 			 	 }),
@@ -91,19 +84,13 @@ module.exports = {
 				'getDeltas': generic.getDeltas_fm(function(self){
 					return 1;
 				})
-			}
+			})
 		},
 
 		'tanh': function(randomnessFunc, cost, tempLink){
-			return {
-				connections: [],
-				influences: [],
-				'connect': generic.connect_f,
-				'disconnect': generic.disconnect_f,
+			return mix({
 				'init': generic.init_fm(tempLink, randomnessFunc),
 				'propogate': generic.propogate_fm(cost),
-				'adjust': generic.adjust_f,
-				'applyDeltas': generic.applyDeltas_f,
 				'activation': generic.activation_fm(function(z){
 					var eToX = Math.pow(Math.E, z);
 					var eToNegX = Math.pow(Math.E, -z);
@@ -122,20 +109,14 @@ module.exports = {
 					var dAwrtZ = 4 / (eTo2X + 2 + eToNeg2X);
 					return dAwrtZ;
 				 })
-			}
+			});
 
 		},
 
 		'sigmoid': function(randomnessFunc, cost, tempLink){
-			return {
-				connections: [],
-				influences: [],
-				'connect': generic.connect_f,
-				'disconnect': generic.disconnect_f,
+			return mix({
 				'init': generic.init_fm(tempLink, randomnessFunc),
 				'propogate': generic.propogate_fm(cost),
-				'adjust': generic.adjust_f,
-				'applyDeltas': generic.applyDeltas_f,
 				'activation': generic.activation_fm(function(z){
 					return 1 / (1 + Math.pow(Math.E, -z));
 				 }),
@@ -147,7 +128,7 @@ module.exports = {
 					var dAwrtZ = 1 / (Math.pow(Math.E, -self.z) + 2 + Math.pow(Math.E, self.z));
 					return dAwrtZ;
 				 })
-			}
+			})
 		}
 
 	};

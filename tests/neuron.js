@@ -189,7 +189,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 				}
 
 				//Train em all, say, 500 times
-				for(var a = 0; a < 1500; a++){
+				for(var a = 0; a < 2000; a++){
 
 					//Get input / output.
 					num = Math.round(Math.random()*7);
@@ -289,7 +289,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 				}
 
 				//Train em all, say, 500 times
-				for(var a = 0; a < 2000; a++){
+				for(var a = 0; a < 2200; a++){
 
 					//Get input / output.
 					num = Math.round(Math.random()*7);
