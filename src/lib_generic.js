@@ -1,14 +1,12 @@
-module.exports = function(randomnessFunc, cost){
+module.exports =  {
 
-	return {
-
-			'connect': function(neuron){
+			'connect_f': function(neuron){
 				this.connections.push(neuron);
 				neuron.influences.push(this);
 				return true;
 			},
 
-			'disconnect': function(neuron){
+			'disconnect_f': function(neuron){
 				if(this.connections.indexOf(neuron) != -1){
 					neuron.influences.splice(neuron.influences.indexOf(this),1);
 					this.connections.splice(this.connections.indexOf(neuron),1);
@@ -17,7 +15,7 @@ module.exports = function(randomnessFunc, cost){
 				return false;
 			},
 
-			'init' : function(sharedValue){
+			'init_fm' : function(sharedValue, randomnessFunc){
 
 				var sharedValue = sharedValue;
 
@@ -46,27 +44,29 @@ module.exports = function(randomnessFunc, cost){
 				}
 			},
 
-			'propogate' : function(val){
-				var self = this;
-				if (!isNaN(val)){
-					self.dCwrtA = cost.derivative(val, self.a);
-					return self.dCwrtA;
-				}else{
+			'propogate_fm' : function(cost){
+				return function(val){
+					var self = this;
+					if (!isNaN(val)){
+						self.dCwrtA = cost.derivative(val, self.a);
+						return self.dCwrtA;
+					}else{
 
-					self.dCwrtA = self.influences.reduce(function(sum, influencedNeuron, index){
-						return sum + influencedNeuron.dCwrtA * influencedNeuron.dAwrt(self);
-					},0);
-					return self.dCwrtA;
+						self.dCwrtA = self.influences.reduce(function(sum, influencedNeuron, index){
+							return sum + influencedNeuron.dCwrtA * influencedNeuron.dAwrt(self);
+						},0);
+						return self.dCwrtA;
+					}
 				}
 			},
 			
-			'adjust': function(eta){
+			'adjust_f': function(eta){
 				var self = this;
 				self.getDeltas();
 				self.applyDeltas(eta);
 			},
 
-			'getDeltas': function(calculateDawrtZ){
+			'getDeltas_fm': function(calculateDawrtZ){
 				return function(){
 					var self = this;
 					var dAwrtZ = calculateDawrtZ(self);
@@ -80,7 +80,7 @@ module.exports = function(randomnessFunc, cost){
 				}
 			},
 
-			'applyDeltas': function(eta){
+			'applyDeltas_f': function(eta){
 				var self = this;
 				var lambda = eta / self.numDeltas;
 				
@@ -96,7 +96,7 @@ module.exports = function(randomnessFunc, cost){
 				self.weightsDelta = self.weightsDelta.map(function(){return 0;});
 			},
 
-			'activation': function(link_function){
+			'activation_fm': function(link_function){
 				return function(val){
 					var self = this;
 					if (!isNaN(val)){
@@ -113,7 +113,7 @@ module.exports = function(randomnessFunc, cost){
 				}
 			},
 
-			'dAwrt': function(deriv_function){
+			'dAwrt_fm': function(deriv_function){
 				return function(neuron){
 					var self = this;
 					var index = self.connections.indexOf(neuron);
@@ -125,5 +125,3 @@ module.exports = function(randomnessFunc, cost){
 				}
 			}
 		}
-
-}
