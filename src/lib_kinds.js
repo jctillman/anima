@@ -1,22 +1,5 @@
 var generic = require('./lib_generic');
-
-var mix = function(obj){
-	var base = {
-		connections: [],
-		influences: [],
-		'connect': generic.connect_f,
-		'disconnect': generic.disconnect_f,
-		'adjust': generic.adjust_f,
-		'applyDeltas': generic.applyDeltas_f
-	};
-	var keys = Object.keys(obj);
-	for(var x = 0; x < keys.length; x++){
-		base[keys[x]] = obj[keys[x]]
-	}
-	return base;
-}
-
-
+var mix = require('./lib_base');
 
 module.exports = {
 
@@ -138,9 +121,37 @@ module.exports = {
 				'connect': generic.connect_f,
 				'disconnect': generic.disconnect_f,
 				'init': function(){
+					var self = this;
+					var temp = ['g','i','f','o'];
+
+					//Initializing parameters for the neurons
+					if(!tempLink.hasOwnProperty('g')){
+						temp.forEach(function(val){
+							tempLink[val] = {present: [], past: []};
+							self.connections.forEach(function(){
+								tempLink[val].present.push(randomnessFunc(self.connections.length*2));
+								tempLink[val].past.push(randomnessFunc(self.connections.length*2));
+								tempLink[val].bias = randomnessFunc(self.connections.length*4);
+							});
+						});						
+					}
+					self.sv = tempLink;
+
+					//Used for stochastic gradient descent.
+					self.numDeltas = 0;
+					temp.forEach(function(val){
+						self[val] =  {
+							presentDelta: self.connections.map(function(){return 0;}),
+							pastDelta: self.connections.map(function(){return 0;}),
+							biasDelta: 0
+						};
+					});
+
+					//Initialization of activation value
+					self.a = 0;
 
 				},
-				'activation': function(){
+				'activation': function(val){
 
 				},
 				'propogate': function(){
@@ -167,13 +178,3 @@ module.exports = {
 		}
 
 	};
-
-
-
-
-
-
-
-
-
-

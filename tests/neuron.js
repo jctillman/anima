@@ -487,6 +487,7 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 
 			var size = 3
 
+			//Make the neurons
 			var a = neuron({typeOfNeuron: 'input'});
 			var b = [];
 			for(var x = 0; x < size; x++){
@@ -494,11 +495,22 @@ describe('Testing neuron, which is the neuron-creating function', function(){
 			}
 			var c = neuron({typeOfNeuron: 'lstm'});
 
+			//Connect em.
+			for(var x = 0; x < size; x++){
+				b[x].connect(a);
+				c.connect(b[x]);
+			}
+
+			//Can be initialized;
 			a.init();
 			for(var x = 0; x < size; x++){
 				b[x].init();
 			}
 			c.init();
+
+			//console.log(c)
+
+
 
 		});
 
