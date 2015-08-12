@@ -1,4 +1,5 @@
 var generic = require('./lib_generic');
+var _ = require('lodash')
 
 var mix = function(obj){
 	var base = {
@@ -9,14 +10,8 @@ var mix = function(obj){
 		'adjust': generic.adjust_f,
 		'applyDeltas': generic.applyDeltas_f
 	};
-	var keys = Object.keys(obj);
-	for(var x = 0; x < keys.length; x++){
-		base[keys[x]] = obj[keys[x]]
-	}
-	return base;
+	return _.extend(obj, base);
 }
-
-
 
 module.exports = {
 

@@ -6,7 +6,7 @@ var shared = {};
 var Neuron = function(options){
 		
 	var neuronKind = options.typeOfNeuron || 'leakyrelu';
-	var randomness = options.randomness || 'flatProportionatePositive';
+	var randomness = options.randomness || 'flatProportionateZero';
 	var cost = options.cost || 'squaredError';
 
 	var rand = randomnesses[randomness]
