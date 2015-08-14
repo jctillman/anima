@@ -23,6 +23,7 @@ module.exports =  {
 					var self = this;
 					
 					//Initializing parameters for the neurons.
+					//console.log("before", !self.connections || self.connections.length, !sharedValue.weights || sharedValue.weights.length)
 					if(!sharedValue.hasOwnProperty('weights')){
 						sharedValue.bias = randomnessFunc(self.connections.length);
 						sharedValue.weights = [];
@@ -30,6 +31,7 @@ module.exports =  {
 							sharedValue.weights.push(randomnessFunc(self.connections.length));
 						});
 					}
+					//console.log("after", self.connections.length, sharedValue.weights.length)
 					self.sv = sharedValue;
 					
 					//This is used in stochastic gradient descent.
@@ -104,10 +106,13 @@ module.exports =  {
 						return self.a;
 					}
 					else{
+						//console.log(self.sv.weights, self.connections.length);
 						self.z = self.connections.reduce(function(sum, neuron, index){
+							//console.log("degenerate", sum, neuron.a, self.sv.weights[index]); //So the problem is weights has nine elements, but connections apparently has more?
 							return sum + neuron.a * self.sv.weights[index]
 						}, self.sv.bias);
 						self.a = link_function(self.z);
+						//console.log("a", self.a)
 						return self.a;
 					}
 				}

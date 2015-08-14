@@ -360,7 +360,7 @@ xdescribe('Testing neuron, which is the neuron-creating function', function(){
 
 	});
 
-	xdescribe('Tests which pertain to neurons with shared values', function(){
+	describe('Tests which pertain to neurons with shared values', function(){
 
 			it('Updates the memory in neurons not touched, if they share weights', function(){
 
