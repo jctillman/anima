@@ -374,7 +374,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 			NN.init();
 			console.log("Training...")
-			for(var x = 0; x < trainingData.length / 8; x++){
+			for(var x = 0; x < trainingData.length / 4; x++){
 				NN.activation(m[x][0])
 				NN.propogate(m[x][1]);
 				NN.adjust(0.0003);
@@ -423,7 +423,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 			NN.init();
 			console.log("Training...")
-			for(var x = 0; x < trainingData.length / 8; x++){
+			for(var x = 0; x < trainingData.length / 4; x++){
 				NN.activation(m[x][0])
 				NN.propogate(m[x][1]);
 				NN.adjust(0.0003);
@@ -448,7 +448,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		});
 
-		it('Can use a basic fully-connected network to distinguish ALL of the MNIST data', function(){
+		xit('Can use a basic fully-connected network to distinguish ALL of the MNIST data', function(){
 
 			var m = mnistReader.allElements()
 			

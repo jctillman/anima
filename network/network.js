@@ -107,24 +107,41 @@ var Network = function(options){
 }
 
 Network.prototype.init = function(){
-	var self = this;
-	for(var x = 0; x < self.layers.length; x++){
-		for(var y = 0; y < self.layers[x].neurons.length; y++){
-			self.layers[x].neurons[y].neuron.init();
-		}
-	}
+	this._forwards('init');
 }
 
 Network.prototype.activation = function(val){
-	var self = this;
-	for(var x = 0; x < self.layers[0].neurons.length; x++){
+	return this._forwards('activation', val);
+}
 
-		self.layers[0].neurons[x].neuron.activation(val[x]);
+Network.prototype.propogate = function(val){
+	this._backwards('propogate', val);
+}
+
+Network.prototype.adjust = function(eta){
+	this._backwards('adjust', eta);
+}
+
+Network.prototype.applyDeltas = function(eta){
+	this._backwards('applyDeltas', eta);
+}
+
+Network.prototype.getDeltas = function(){
+	this._backwards('getDeltas');
+}
+
+Network.prototype._forwards = function(funcName, value){
+
+	var self = this;
+	if (value != undefined){
+		for(var x = 0; x < self.layers[0].neurons.length; x++){
+			self.layers[0].neurons[x].neuron[funcName](value[x]);
+		}
 	}
 	for(var x = 1; x < self.layers.length; x++){
 		for(var y = 0; y < self.layers[x].neurons.length; y++){
 			
-			self.layers[x].neurons[y].neuron.activation();
+			self.layers[x].neurons[y].neuron[funcName]();
 			//console.log(self.layers[x].neurons[y].neuron)
 		}
 	}
@@ -132,64 +149,29 @@ Network.prototype.activation = function(val){
 	return self.layers[self.layers.length-1].neurons.map(function(n){
 		return n.neuron.a;
 	});
+
 }
 
-Network.prototype.propogate = function(val){
-	var self = this;
-	var last = self.layers[self.layers.length-1].neurons;
-	for(var x = 0; x < last.length; x++){
-		last[x].neuron.propogate(val[x]);
-	}
-	for(var x = self.layers.length-2; x > 0; x--){
-		for(var y = 0; y < self.layers[x].neurons.length; y++){
-			self.layers[x].neurons[y].neuron.propogate();
-		}	
-	}
-}
-
-Network.prototype.adjust = function(eta){
+Network.prototype._backwards = function(funcName, value){
 
 	var self = this;
 	var last = self.layers[self.layers.length-1].neurons;
-	for(var x = 0; x < last.length; x++){
-		last[x].neuron.adjust(eta);
+	if(!isNaN(value)){
+		for(var x = 0; x < last.length; x++){
+			last[x].neuron[funcName](value);
+		}
+	}else{
+		for(var x = 0; x < last.length; x++){
+			last[x].neuron[funcName](value[x]);
+		}
 	}
 	for(var x = self.layers.length-2; x > 0; x--){
 		for(var y = 0; y < self.layers[x].neurons.length; y++){
-			self.layers[x].neurons[y].neuron.adjust(eta);
+			self.layers[x].neurons[y].neuron[funcName](value);
 		}	
 	}
 
-}
 
-Network.prototype.applyDeltas = function(eta){
-
-	var self = this;
-	var last = self.layers[self.layers.length-1].neurons;
-	for(var x = 0; x < last.length; x++){
-		last[x].neuron.applyDeltas(eta);
-	}
-	for(var x = self.layers.length-2; x > 0; x--){
-		for(var y = 0; y < self.layers[x].neurons.length; y++){
-			self.layers[x].neurons[y].neuron.applyDeltas(eta);
-		}	
-	}
-
-}
-
-Network.prototype.getDeltas = function(){
-
-	var self = this;
-	var last = self.layers[self.layers.length-1].neurons;
-	for(var x = 0; x < last.length; x++){
-		last[x].neuron.getDeltas();
-	}
-	for(var x = self.layers.length-2; x > 0; x--){
-		for(var y = 0; y < self.layers[x].neurons.length; y++){
-			self.layers[x].neurons[y].neuron.getDeltas();
-		}	
-	}
-
-}
+};
 
 module.exports = Network
