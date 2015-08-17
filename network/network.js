@@ -22,36 +22,44 @@ var Network = function(options){
 
 	options.forEach(function(option, index){
 
+		//Create the layer
 		self.layers.push({ neurons: [], uniqueId: Math.floor(Math.random()*10000) });
-		var thisLayer = self.layers[self.layers.length-1];
 
-		//Fill this layer with neurons.
-		//The dimensions of this layer are either (1) what it says or (2) determined from stride, field, and dimensions of prior layer.
-		thisLayer.dimensions = option.pattern.dimensions || option.pattern.stride.map(function(stride,index){
-				return (self.layers[self.layers.length-2].dimensions[index] - option.pattern.field[index])/stride + 1;
+		//Shorten, because otherwise things get unintelligible. lyr = this layer, prr = prior layer.
+		var lyr = self.layers[self.layers.length-1];
+		var prr = (self.layers.length > 1) ? self.layers[self.layers.length-2] : undefined;
+
+		//The dimensions of this layer are either
+		//(1) what the options say or
+		//(2) determined from stride and field in options, and dimensions of the prior layer.
+		lyr.dimensions =
+			option.pattern.dimensions
+			||
+			option.pattern.stride.map(function(stride,index){
+				return (prr.dimensions[index] - option.pattern.field[index])/stride + 1;
 			}).concat( (option.pattern.depth != undefined) ? (option.pattern.depth) : [] );
-		fillDimensions(thisLayer, thisLayer.dimensions, option, (!!option.pattern.depth) )
+
+		//Fill the determined dimensions with neurons.
+		//If it has a depth property, we're dealing with something with layers.
+		fillDimensions(lyr, lyr.dimensions, option, (!!option.pattern.depth) )
 		
-		//Connect the neurons 
-		for(var x = 0; x < thisLayer.neurons.length; x++){
-
+		//Connect the neurons to the neurons o the prior layer,
+		//if the neurons have a connection type of'full' or 'partial' but not 'none'.
+		for(var x = 0; x < lyr.neurons.length; x++){
 			if (option.pattern.type == 'full'){
-				for(var y = 0; y < self.layers[self.layers.length-2].neurons.length; y++){
-					thisLayer.neurons[x].neuron.connect(self.layers[self.layers.length-2].neurons[y].neuron);
+				for(var y = 0; y < prr.neurons.length; y++){
+					lyr.neurons[x].neuron.connect(prr.neurons[y].neuron);
 				}
-
 			}else if (option.pattern.type == 'partial'){
-				//Get location, relative to the prior layer
-				var relativeLocation = thisLayer.neurons[x].location.map(function(n, index){return n * ( option.pattern.stride[index] || 1);});
-				//Loop over field, for this layer.
+				var relativeLocation = lyr.neurons[x].location.map(function(n, index){return n * ( option.pattern.stride[index] || 1);});
 				latn.iter.apply({}, option.pattern.field.concat(function(){
 					var connectionLocation = Array.prototype.slice.apply(arguments).map(function(n,i){return relativeLocation[i]+n});
-					var neuronToConnectTo = self.layers[self.layers.length-2].neurons.filter(function(neuron){
+					var neuronToConnectTo = prr.neurons.filter(function(neuron){
 						return neuron.location.every(function(vr, ind){
 							return vr == connectionLocation[ind];
 						});
 					});
-					thisLayer.neurons[x].neuron.connect(neuronToConnectTo[0].neuron);
+					lyr.neurons[x].neuron.connect(neuronToConnectTo[0].neuron);
 				}));
 			}
 		}
@@ -126,5 +134,27 @@ Network.prototype._backwards = function(funcName, value){
 		}	
 	}
 };
+
+Network.prototype.batchTrain = function(inputs, outputs, eta, batchSize){
+	for(var x = 0; x < inputs.length; x++){
+		this.activation(inputs[x]);
+		this.propogate(outputs[x]);
+		this.getDeltas();
+		((x + 1) % batchSize) || this.applyDeltas(eta);
+	}
+}
+
+//Assumes we're dealing with one-hot encoding. 
+Network.prototype.percentRight = function(inputs, outputs){
+	var good = 0;
+	for(var x = 0; x < inputs.length; x++){
+		var results = this.activation(inputs[x]);
+		var maxIndex = results.indexOf(_.max(results))
+		if (maxIndex == outputs[x].indexOf(1)){
+			good++
+		}
+	}
+	return good / inputs.length;
+}
 
 module.exports = Network

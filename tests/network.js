@@ -346,9 +346,9 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 	});
 
-	describe('Can it handle some *real* data correctly?', function(){
+	xdescribe('Can it handle some *real* data correctly?', function(){
 
-		this.timeout(50000)
+		this.timeout(600000)
 
 		it('Can use a basic fully-connected network to distinguish 1s and 0s MNIST data', function(){
 
@@ -374,10 +374,10 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 			NN.init();
 			console.log("Training...")
-			for(var x = 0; x < trainingData.length / 4; x++){
+			for(var x = 0; x < trainingData.length / 3; x++){
 				NN.activation(m[x][0])
 				NN.propogate(m[x][1]);
-				NN.adjust(0.0003);
+				NN.adjust(0.0005);
 			}
 			console.log("Testing...");
 			var good = 0;
@@ -423,10 +423,10 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 			NN.init();
 			console.log("Training...")
-			for(var x = 0; x < trainingData.length / 4; x++){
+			for(var x = 0; x < trainingData.length / 3; x++){
 				NN.activation(m[x][0])
 				NN.propogate(m[x][1]);
-				NN.adjust(0.0003);
+				NN.adjust(0.0005);
 			}
 			console.log("Testing...");
 			var good = 0;
@@ -448,7 +448,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		});
 
-		xit('Can use a basic fully-connected network to distinguish ALL of the MNIST data', function(){
+		it('Can use a basic fully-connected network to distinguish ALL of the MNIST data', function(){
 
 			var m = mnistReader.allElements()
 			
@@ -471,9 +471,23 @@ describe('Testing network, that it creates networks and feeds forward basically 
 			NN.init();
 			console.log("Training...")
 			for(var x = 0; x < trainingData.length * 2; x++){
-				NN.activation(m[x % trainingData.length][0])
-				NN.propogate(m[x % trainingData.length][1]);
-				NN.adjust(0.0002);
+				if (x % trainingData.length == 0){
+					console.log("Training...", x / trainingData.length)
+					console.log("Testing...");
+					var good = 0;
+					for(var y = 0; y < validationData.length; y++){
+						var results = NN.activation(m[y][0]);
+						var maxIndex = results.indexOf(_.max(results))
+						if (maxIndex == m[y][1].indexOf(1)){
+							good++
+						}
+					}
+					console.log("Got ", good, " out of ", validationData.length, " right.")
+				}
+				var randomFrame = trainingData[Math.floor(trainingData.length*Math.random())];
+				NN.activation(randomFrame[0])
+				NN.propogate(randomFrame[1]);
+				NN.adjust(0.0005);
 			}
 			console.log("Testing...");
 			var good = 0;
@@ -488,10 +502,98 @@ describe('Testing network, that it creates networks and feeds forward basically 
 			console.log("Got ", good, " out of ", validationData.length, " right.")
 			expect(good*2 > validationData.length).to.eql(true);
 
-
 		});
 
 		it('Can use a basic conv-net network to distinguish ALL of the MNIST data', function(){
+
+			var m = mnistReader.allElements()
+			
+			var percentForTraining = 0.9;
+			var trainingData = m.slice(0,Math.round(m.length*percentForTraining));
+			var validationData = m.slice(Math.round(m.length*percentForTraining),m.length);
+			
+			var neuronOptions = {
+				typeOfNeuron: 'tanh',
+				randomness: 'flatProportionateZero',
+				cost: 'squaredError'
+			};
+
+			var NN = new Network([
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [Math.sqrt(trainingData[0][0].length), Math.sqrt(trainingData[0][0].length)]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'partial', stride:[1,1], field:[5,5], depth:[2]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [10]}}
+			]);
+
+			NN.init();
+			console.log("Training...")
+			for(var x = 0; x < trainingData.length * 2; x++){
+				if (x % trainingData.length == 0){
+					console.log("Training...", x / trainingData.length)
+					console.log("Testing...");
+					var good = 0;
+					for(var y = 0; y < validationData.length; y++){
+						var results = NN.activation(m[y][0]);
+						var maxIndex = results.indexOf(_.max(results))
+						if (maxIndex == m[y][1].indexOf(1)){
+							good++
+						}
+					}
+					console.log("Got ", good, " out of ", validationData.length, " right.")
+				}
+				var randomFrame = trainingData[Math.floor(trainingData.length*Math.random())];
+				NN.activation(randomFrame[0])
+				NN.propogate(randomFrame[1]);
+				NN.adjust(0.0005);
+			}
+			console.log("Testing...");
+			var good = 0;
+			for(var x = 0; x < validationData.length; x++){
+				var results = NN.activation(m[x][0]);
+				var maxIndex = results.indexOf(_.max(results))
+				if (maxIndex == m[x][1].indexOf(1)){
+					good++
+				}
+				//console.log("Results: ", results, "   Ideal: ", m[x][1])
+			}
+			console.log("Got ", good, " out of ", validationData.length, " right.")
+			expect(good*2 > validationData.length).to.eql(true);
+
+		});
+
+	});
+
+	describe('Batch training / mass training modules also work.', function(){
+
+		this.timeout(20000)
+
+		it('Is able to train batches', function(){
+
+			var m = mnistReader.zeroAndOne().map(function(datum){
+				return [datum[0], datum[1].slice(0,2)]
+			});
+
+			var inputs = m.map(function(n){return n[0];});
+			var outputs = m.map(function(n){return n[1];});
+			var inputsTraining = inputs.slice(0, Math.round(inputs.length *  0.9));
+			var outputsTraining = outputs.slice(0, Math.round(inputs.length *  0.9));
+			var inputsValidation = inputs.slice(Math.round(inputs.length *  0.9), inputs.length);
+			var outputsValidation = outputs.slice(Math.round(inputs.length *  0.9), inputs.length);
+
+
+			var neuronOptions = {typeOfNeuron: 'tanh', randomness: 'flatProportionateZero', cost: 'squaredError' };
+
+			var NN = new Network([
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [inputs[0].length]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [30]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
+			]);
+
+			NN.init();
+
+			NN.batchTrain(inputsTraining, outputsTraining, 0.01, 20);
+			var right = NN.percentRight(inputsValidation, outputsValidation);
+			expect(right > 0.9).to.equal(true);
+
 
 		});
 
