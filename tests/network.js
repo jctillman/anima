@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 describe('Testing network, that it creates networks and feeds forward basically right', function(){
 
-	xdescribe('It can make a fully-connected network, with as many layers as specified, of the dimensions specified', function(){
+	describe('It can make a fully-connected network, with as many layers as specified, of the dimensions specified', function(){
 
 		var neuronOptions = {
 			typeOfNeuron: 'tanh',
@@ -52,7 +52,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 	});
 
-	xdescribe('It can make a partially connected network without shared weights, with as many layers as specified, of the dimensions specified', function(){
+	describe('It can make a partially connected network without shared weights, with as many layers as specified, of the dimensions specified', function(){
 
 		var neuronOptions = {
 			typeOfNeuron: 'tanh',
@@ -141,7 +141,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 	});
 
-	xdescribe('Testing initialization, activation, propogation, adjusting, in general terms', function(){
+	describe('Testing initialization, activation, propogation, adjusting, in general terms', function(){
 
 		var neuronOptions = {
 			typeOfNeuron: 'tanh',
