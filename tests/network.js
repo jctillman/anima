@@ -15,7 +15,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		it('Can make a single-dimensional network', function(){
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [32]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [32]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [7]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [3]}},
 			]);
@@ -34,7 +34,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		it('Can make a multi-dimensional network', function(){
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [10,10]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [10,10]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [5,5]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}},
 			]);
@@ -63,7 +63,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 		it('Can make a single-dimensional, partially connected network', function(){
 
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3], stride:[2]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3], stride:[1]}}
 			]);
@@ -83,7 +83,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 		it('Can make a multi-dimensional, partially-connected network', function(){
 
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11,11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11,11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[2,2]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[1,1]}}
 			]);
@@ -104,7 +104,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 		//Whammo, passed on the first try.  Uh-huh, uh-huh.
 		it('Can make a multi-dimensional, partially-connected network with alternate resolutions in different directions', function(){
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11,11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11,11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[2,1]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[1,1]}}
 			]);
@@ -122,7 +122,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		it('Can make a multi-dimensional, partially-connected network with extra freakin layers and shared weights', function(){
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11,11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11,11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[2,2], depth: [5]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3,5], stride:[1,1,1],}}
 			]);
@@ -188,7 +188,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 		it('Can do all of that with a multi-dimensional, partially-connected network', function(){
 
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11,11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11,11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[2,2]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[1,1]}}
 			]);
@@ -223,7 +223,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		it('Can do all that with a make a single-dimensional, partially-connected network with extra freakin layers and shared weights', function(){
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3], stride:[2], depth: [5]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,5], stride:[1,1], depth:[1]}}
 			]);
@@ -288,7 +288,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 		it('Can do all that with a multi-dimensional, partially-connected network with extra freakin layers and shared weights', function(){
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [11,11]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [11,11]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3], stride:[2,2], depth: [5]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', field: [3,3,5], stride:[1,1,1], depth: [1],}}
 			]);
@@ -367,7 +367,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 			};
 
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [trainingData[0][0].length]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [trainingData[0][0].length]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [30]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
 			]);
@@ -416,7 +416,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 			};
 
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [Math.sqrt(trainingData[0][0].length), Math.sqrt(trainingData[0][0].length)]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [Math.sqrt(trainingData[0][0].length), Math.sqrt(trainingData[0][0].length)]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'partial', stride:[1,1], field:[5,5], depth:[2]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
 			]);
@@ -463,7 +463,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 			};
 
 			var NN = new Network([
-				{neuronOptions: neuronOptions, pattern: {dimensions: [trainingData[0][0].length]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [trainingData[0][0].length]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [30]}},
 				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [10]}}
 			]);
