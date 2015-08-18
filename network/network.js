@@ -1,6 +1,8 @@
 var _ = require('lodash');
 var neuron = require('../neuron/neuron');
 var latn = require('latn');
+var fs = require('fs');
+var path = require('path');
 
 var fillDimensions = function(aLayer, dimensions, options, usesConvolutions){
 	var free = _.cloneDeep(options.neuronOptions);
@@ -135,6 +137,9 @@ Network.prototype._backwards = function(funcName, value){
 	}
 };
 
+
+//The rest of this, is in at least some sense unnecessary.
+
 Network.prototype.batchTrain = function(inputs, outputs, eta, batchSize){
 	for(var x = 0; x < inputs.length; x++){
 		this.activation(inputs[x]);
@@ -144,7 +149,7 @@ Network.prototype.batchTrain = function(inputs, outputs, eta, batchSize){
 	}
 }
 
-//Assumes we're dealing with one-hot encoding. 
+//Assumes we're dealing with one-hot classification encoding. 
 Network.prototype.percentRight = function(inputs, outputs){
 	var good = 0;
 	for(var x = 0; x < inputs.length; x++){
@@ -155,6 +160,56 @@ Network.prototype.percentRight = function(inputs, outputs){
 		}
 	}
 	return good / inputs.length;
+}
+
+Network.prototype.save = function(filename){
+	var self = this;
+	var string = "";
+	//Write number of layers
+	//string = string + self.layers.length + "\n";
+	for (var x = 1; x < self.layers.length; x++){
+		//Write number of neurons in layer
+		//string = string + self.layers[x].neurons.length + "\n"
+
+		for(var y = 0; y < self.layers[x].neurons.length; y++){
+
+			//Write the bias
+			string = string + self.layers[x].neurons[y].neuron.sv.bias + "\n";
+
+			//Write the weights for the neuron
+			//console.log(self.layers[x].neurons[y].neuron)
+			for(var z = 0; z < self.layers[x].neurons[y].neuron.sv.weights.length; z++){
+				string = string + self.layers[x].neurons[y].neuron.sv.weights[z] + "\n";
+			}
+		}
+	}
+	//console.log(filename, string)
+	//console.log(  path.join(__dirname, "./" +filename + ".txt")  )
+	fs.writeFileSync(path.join(__dirname, "./" +filename + ".txt"), string)
+}
+
+Network.prototype.load = function(filename){
+	var m = fs.readFileSync(path.join(__dirname, "./" +filename + ".txt"))
+	m = m.toString().split("\n");
+	var spot = 0;
+
+	var self = this;
+
+	for (var x = 1; x < self.layers.length; x++){
+
+		for(var y = 0; y < self.layers[x].neurons.length; y++){
+
+			self.layers[x].neurons[y].neuron.sv.bias = parseFloat(m[spot]);
+			//console.log("d", spot, m[spot]);
+			spot++;
+
+			for(var z = 0; z < self.layers[x].neurons[y].neuron.sv.weights.length; z++){
+				self.layers[x].neurons[y].neuron.sv.weights[z] = parseFloat(m[spot]);
+				spot++;
+			}
+		}
+	}
+
 }
 
 module.exports = Network

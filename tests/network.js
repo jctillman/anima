@@ -5,7 +5,7 @@ var _ = require('lodash');
 
 describe('Testing network, that it creates networks and feeds forward basically right', function(){
 
-	describe('It can make a fully-connected network, with as many layers as specified, of the dimensions specified', function(){
+	xdescribe('It can make a fully-connected network, with as many layers as specified, of the dimensions specified', function(){
 
 		var neuronOptions = {
 			typeOfNeuron: 'tanh',
@@ -52,7 +52,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 	});
 
-	describe('It can make a partially connected network without shared weights, with as many layers as specified, of the dimensions specified', function(){
+	xdescribe('It can make a partially connected network without shared weights, with as many layers as specified, of the dimensions specified', function(){
 
 		var neuronOptions = {
 			typeOfNeuron: 'tanh',
@@ -141,7 +141,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 	});
 
-	describe('Testing initialization, activation, propogation, adjusting, in general terms', function(){
+	xdescribe('Testing initialization, activation, propogation, adjusting, in general terms', function(){
 
 		var neuronOptions = {
 			typeOfNeuron: 'tanh',
@@ -562,7 +562,7 @@ describe('Testing network, that it creates networks and feeds forward basically 
 
 	});
 
-	describe('Batch training / mass training modules also work.', function(){
+	xdescribe('Batch training / mass training modules also work.', function(){
 
 		this.timeout(20000)
 
@@ -593,6 +593,142 @@ describe('Testing network, that it creates networks and feeds forward basically 
 			NN.batchTrain(inputsTraining, outputsTraining, 0.01, 20);
 			var right = NN.percentRight(inputsValidation, outputsValidation);
 			expect(right > 0.9).to.equal(true);
+
+
+		});
+
+	});
+
+	xdescribe('It can save itself, with the qualities it has, yeah.', function(){
+
+		this.timeout(20000)
+
+		it('Is able to save a simple network, without sparse connections or shared weights.', function(done){
+
+			var m = mnistReader.zeroAndOne().map(function(datum){
+				return [datum[0], datum[1].slice(0,2)]
+			});
+
+			var inputs = m.map(function(n){return n[0];});
+			var outputs = m.map(function(n){return n[1];});
+			var inputsTraining = inputs.slice(0, Math.round(inputs.length *  0.9));
+			var outputsTraining = outputs.slice(0, Math.round(inputs.length *  0.9));
+			var inputsValidation = inputs.slice(Math.round(inputs.length *  0.9), inputs.length);
+			var outputsValidation = outputs.slice(Math.round(inputs.length *  0.9), inputs.length);
+
+
+			var neuronOptions = {typeOfNeuron: 'tanh', randomness: 'flatProportionateZero', cost: 'squaredError' };
+
+			var NN = new Network([
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [inputs[0].length]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [30]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
+			]);
+
+			NN.init();
+
+			NN.batchTrain(inputsTraining, outputsTraining, 0.01, 20);
+			var right = NN.percentRight(inputsValidation, outputsValidation);
+			expect(right > 0.9).to.equal(true);
+
+
+
+			NN.save('filename');
+
+			var AA = new Network([
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [inputs[0].length]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [30]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
+			]);
+
+			AA.init();
+
+			AA.load('filename')
+			var secondRight = AA.percentRight(inputsValidation, outputsValidation);
+			//console.log(right, secondRight, AA.layers[1].neurons[1].neuron.sv)
+			expect(secondRight == right).to.equal(true);
+
+			done();
+
+		});
+
+		it('Is able to save a more complex network, without sparse connections or shared weights', function(){
+
+
+			var m = mnistReader.zeroAndOne().map(function(datum){
+				return [datum[0], datum[1].slice(0,2)]
+			});
+			
+			var percentForTraining = 0.9;
+			var trainingData = m.slice(0,Math.round(m.length*percentForTraining));
+			var validationData = m.slice(Math.round(m.length*percentForTraining),m.length);
+			
+			var neuronOptions = {
+				typeOfNeuron: 'tanh',
+				randomness: 'flatProportionateZero',
+				cost: 'squaredError'
+			};
+
+			var NN = new Network([
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [Math.sqrt(trainingData[0][0].length), Math.sqrt(trainingData[0][0].length)]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'partial', stride:[1,1], field:[5,5], depth:[2]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
+			]);
+
+			NN.init();
+			//console.log("Training...")
+			for(var x = 0; x < trainingData.length / 4; x++){
+				NN.activation(m[x][0])
+				NN.propogate(m[x][1]);
+				NN.adjust(0.0005);
+			}
+			//console.log("Testing...");
+			var good = 0;
+			for(var x = 0; x < validationData.length; x++){
+				var results = NN.activation(m[x][0]);
+				if (m[x][1][0] == 1){
+					if (results[0] > results[1]){
+						good++;
+					}
+				}else{
+					if (results[1] > results[0]){
+						good++;
+					}
+				}
+				//console.log("Results: ", results, "   Ideal: ", m[x][1])
+			}
+			//console.log("Got ", good, " out of ", validationData.length, " right.")
+			expect(good*1.2 > validationData.length).to.eql(true);
+
+
+			//End cut-and-paste
+			NN.save('otherFileName');
+
+			var AA = new Network([
+				{neuronOptions: neuronOptions, pattern: {type: 'none', dimensions: [Math.sqrt(trainingData[0][0].length), Math.sqrt(trainingData[0][0].length)]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'partial', stride:[1,1], field:[5,5], depth:[2]}},
+				{neuronOptions: neuronOptions, pattern: {type: 'full', dimensions: [2]}}
+			]);
+
+			AA.init();
+
+			AA.load('otherFilename');
+
+			var newgood = 0;
+			for(var x = 0; x < validationData.length; x++){
+				var results = AA.activation(m[x][0]);
+				if (m[x][1][0] == 1){
+					if (results[0] > results[1]){
+						newgood++;
+					}
+				}else{
+					if (results[1] > results[0]){
+						newgood++;
+					}
+				}
+			}
+
+			expect(newgood == good).to.equal(true);
 
 
 		});
